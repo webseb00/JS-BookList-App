@@ -7,6 +7,17 @@ class Book {
 }
 
 class UI {
+  static DOMSelectors() {
+    return {
+      list: document.querySelector('#book-list'),
+      container: document.querySelector('.container'),
+      form: document.querySelector('#book-form'),
+      title: document.querySelector('#title'),
+      author: document.querySelector('#author'),
+      isbn: document.querySelector('#isbn')
+    }
+  }
+
   static displayBooks() {
     const books = Storage.getBooks();
 
@@ -14,8 +25,9 @@ class UI {
   }
 
   static addBookToList(book) {
-    const list = document.querySelector('#book-list');
+    // const list = document.querySelector('#book-list');
     const row = document.createElement('tr');
+    const DOM = UI.DOMSelectors();
 
     row.innerHTML = `
       <td>${book.title}</td>
@@ -24,7 +36,7 @@ class UI {
       <td><a href="#" class="btn btn-danger btn-sm delete">X</a></td>
     `;
 
-    list.appendChild(row);
+    DOM.list.appendChild(row);
   }
 
   static deleteBook(el) {
@@ -38,18 +50,20 @@ class UI {
     div.className = `alert alert-${classname}`;
     div.textContent = message;
 
-    const container = document.querySelector('.container');
-    const form = document.querySelector('#book-form');
+    const DOM = UI.DOMSelectors();
 
-    container.insertBefore(div, form);
+    DOM.container.insertBefore(div, DOM.form);
     // remove alert message in 4 seconds
     setTimeout(() => div.remove(), 4000);
   }
 
   static clearFields() {
-    document.querySelector('#title').value = '';
-    document.querySelector('#author').value = '';
-    document.querySelector('#isbn').value = '';
+    const DOM = UI.DOMSelectors();
+    const { title, author, isbn } = DOM;
+
+    title.value = '';
+    author.value = '';
+    isbn.value = '';
   }
 }
 // store books in local storage
@@ -78,15 +92,16 @@ class Storage {
   }
 }
 
+const DOM = UI.DOMSelectors();
 // load books from local storage
 document.addEventListener('DOMContentLoaded', UI.displayBooks);
 // submit form listener
-document.querySelector('#book-form').addEventListener('submit', e => {
+DOM.form.addEventListener('submit', e => {
   e.preventDefault();
 
-  const title = document.querySelector('#title').value,
-        author = document.querySelector('#author').value,
-        isbn = document.querySelector('#isbn').value;
+  const title = DOM.title.value,
+        author = DOM.author.value,
+        isbn = DOM.isbn.value;
   // validate fields
   if(title === '' || author === '' || isbn === '') {
     UI.showAlert('Please fill all fields correctly!', 'danger');
@@ -105,7 +120,7 @@ document.querySelector('#book-form').addEventListener('submit', e => {
 });
 
 // delete book listener
-document.querySelector('#book-list').addEventListener('click', e => {
+DOM.list.addEventListener('click', e => {
   // remove book from UI
   UI.deleteBook(e.target);
   // remove book from local storage
